@@ -12,6 +12,8 @@
 	
 	
 	
+	
+	
 	<c:if test="${session_id == null }">
 		<div>세션 아이디가 없어요</div>
 	</c:if>
