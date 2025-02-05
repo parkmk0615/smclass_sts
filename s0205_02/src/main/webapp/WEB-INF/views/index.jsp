@@ -9,6 +9,9 @@
 </head>
 <body>
 	<h2>메인페이지</h2>
+	
+	
+	
 	<c:if test="${session_id == null }">
 		<div>세션 아이디가 없어요</div>
 	</c:if>
