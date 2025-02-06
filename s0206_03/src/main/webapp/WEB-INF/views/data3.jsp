@@ -11,6 +11,9 @@
 		  table{text-align: center; width:400px; margin:0 auto;}
 		  th,td{height:40px; }
 		</style>
+		
+		
+		
 </head>
 <body>
 	  <table>
