@@ -13,19 +13,18 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class MemberController {
+	
 	@Autowired MemberService memberService;
 	@Autowired HttpSession session;
 	
-	@GetMapping("/member/login") //로그인 페이지
+	@GetMapping("/member/login")
 	public String login() {
 		return "login";
 	}
-
-	@PostMapping("/member/login") //로그인 확인
-	public String login(MemberDto mdto,Model model) {
-		System.out.println("MemberController login: "+mdto.getId());
+	@PostMapping("/member/login")
+	public String login(MemberDto mdto, Model model) {
 		MemberDto memberDto = memberService.login(mdto);
-		if(memberDto != null) {
+		if(memberDto !=null) {
 			model.addAttribute("chkLogin","1");
 			session.setAttribute("session_id", memberDto.getId());
 			session.setAttribute("session_name", memberDto.getName());
@@ -34,10 +33,7 @@ public class MemberController {
 		}
 		return "login";
 	}
+
 	
-	@GetMapping("/member/logout")
-	public String logout() {
-		session.invalidate();
-		return "redirect:/?logout=1";
-	}
+
 }

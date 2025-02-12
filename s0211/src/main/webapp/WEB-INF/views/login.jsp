@@ -1,7 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-    <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -109,7 +108,7 @@
 <div id="wrap">
     <div id="header">
         <h1>
-            <a href="/" id="h_logo"></a>
+            <a href="#" id="h_logo"></a>
         </h1>
     </div>
     <div id="container">
@@ -127,7 +126,7 @@
                     <div class="pw_area">
                         <div class="input_row" id="pw_area">
                             <span class="input_box">
-                                <input type="text" name="pw" id="uPw" class="int" placeholder="비밀번호">
+                                <input type="text" name="" id="uPw" class="int" placeholder="비밀번호">
                             </span>
                         </div>
                     </div>
