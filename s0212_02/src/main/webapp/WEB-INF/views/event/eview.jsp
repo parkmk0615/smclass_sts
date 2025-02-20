@@ -266,9 +266,26 @@ $(document).ready(function() {
 					</div>
 					<!-- //이전다음글 -->
 					<script>
-				
+						let Chk = 0;  // 화면 창 열림 체크
 						$(function(){
+							let chk = 0;
+							let cno;
+							let eno ="${edto.eno}";
+							let id ="${session_id}";
+							let cdate;
+							let ccontent;
+							
+							
+							//댓글 쓰기
 							$(".replyBtn").click(function(){
+								if("${session_id}"==""){
+									alert("로그인을 하셔야 댓글을 사용할 수 있습니다.");
+									if(confirm("로그인페이지로 이동할까요?")){
+										location.href="/member/login";
+									}
+									return; 
+								}
+								
 								if($(".replyType").val().length<1){
 									alert("댓글 내용을 입력하셔야 저장이 가능합니다.");
 									$(".replyType").focus();
@@ -323,12 +340,128 @@ $(document).ready(function() {
 										alert("댓글저장 실패");
 									}
 								});
+							}) // 댓글 입력
+							
+							//댓글 삭제 - 동적형태: 추가적인 html 소스에서도 적용 가능
+							$(document).on("click",".deleteBtn",function(){
+								console.log($(this).closest("ul").attr("id"));
+								let cno =$(this).closest("ul").attr("id");
+								if(confirm("삭제하시겠습니까?")){
+									alert(cno+"번 게시글이 삭제되었습니다");
+									
+									$.ajax({
+										url:"/event/cdelete", //링크주소
+										type:"post",			// 타입
+										data:{"cno":cno}, //파라미터
+										dataType:"text",	// 리턴 받을 값의 형태
+										success:function(data){ 
+											console.log(data);
+																					
+											$("#"+cno).remove();
+											// 총 개수 1감소
+											let allcount = Number($(".allcount").text())-1;
+											$(".allcount").text(allcount);
+											
+										},
+										error:function(){
+											alert("댓글저장 실패");
+										}
+									}); //ajax
+								}
+							});//deleteBtn		
+							
+							//updateBtn 수정화면
+							$(document).on("click",".updateBtn",function(){
+								if(Chk==1){
+									alert("다른 수정화면이 열려 있습니다. 완료,취소를 한 후 수정이 가능합니다.")
+									return;
+								}
 								
+								Chk = 1;
+									
+								cno = $(this).closest("ul").attr("id");
+								cdate = $(this).closest("ul").children(".name").children("span").text();
+								ccontent = $(this).closest("ul").children(".txt").text();
 								
+								console.log(cno);
+								console.log(cdate);
+								console.log(id);
+								console.log(ccontent);
 								
+								alert(cno+"번 화면 버튼 클릭");
 								
+								let hdata = `
+									<li class="name">`+id+` <span> `+cdate+`</span></li>
+									<li class="txt"><textarea class="replyType">`+ccontent+`</textarea></li>
+									<li class="btn">
+										<a class="rebtn saveBtn">완료</a>
+										<a class="rebtn cancelBtn">취소</a>
+									</li>
+								`;
+								$("#"+cno).html(hdata);
+							});//.updateBtn
+							
+							//수정화면 취소
+							$(document).on("click",".cancelBtn",function(){
+								alert(cno+"번 취소 버튼 클릭")
+								console.log(id);
+								console.log(cdate);
+								console.log(ccontent);
 								
-							}) // click
+								let hdata = `
+									<li class="name">`+id+` <span> `+cdate+`</span></li>
+									<li class="txt">`+ ccontent+`</li>
+									<li class="btn">
+										<a class="rebtn updateBtn">수정</a>
+										<a class="rebtn deleteBtn">삭제</a>
+									</li>
+								`;
+								
+								$("#"+cno).html(hdata);
+								Chk=0;
+							}); //.cancelBtn
+							
+							//댓글 수정저장
+							$(document).on("click",".saveBtn",function(){
+								alert(cno+"번 댓글 수정을 하였습니다.");
+								let eno = "${edto.eno}";
+
+								ccontent = $(this).closest("ul").children(".txt").children(".replyType").val();  
+								
+								$.ajax({
+									url:"/event/cupdate", //링크주소
+									type:"post",			// 타입
+									data:{"eno":eno,"cno":cno,"ccontent":ccontent}, //파라미터
+									dataType:"json",	// 리턴 받을 값의 형태
+									success:function(data){ 
+										console.log(data.cno);
+										console.log(data.ccontent);
+										console.log(data.cdate);
+																				
+										//데이터 html 코드 생성
+										let hdata = "";
+										
+										hdata+='<li class="name">'+data.id+'	<span> ['+
+											moment(data.cdate).format("YYYY-MM-DD HH:mm:ss")
+											+']</span></li>';
+										hdata+='<li class="txt">'+data.ccontent+'</li>';
+										hdata+='<li class="btn">';
+										hdata+='<a href="#" class="rebtn updateBtn">수정</a>&nbsp';
+										hdata+='<a href="#" class="rebtn deleteBtn">삭제</a>';
+										hdata+='</li>';
+										
+										$("#"+cno).html(hdata);
+
+									},
+									error:function(){
+										alert("댓글저장 실패");
+									}
+								});//ajax
+								
+								Chk=0;
+							}); //.saveBtn
+							
+				
 						}); // function
 						
 					</script>
@@ -349,23 +482,38 @@ $(document).ready(function() {
 					<div class="replyBox">
 						
 						<c:forEach items="${clist}" var="cdto">
-						<ul id = "${cdto.cno }">
-							<li class="name">${cdto.id } <span>[${cdto.cdate }]</span></li>
-							<li class="txt">${cdto.ccontent }</li>
-							<li class="btn">
-								<a href="#" class="rebtn updateBtn">수정</a>
-								<a href="#" class="rebtn deleteBtn">삭제</a>
+						<c:if test="${session_id == cdto.id }">
+							<ul id="${cdto.cno}">
+								<li class="name">${cdto.id} <span>[${cdto.cdate }]</span></li>
+								<li class="txt">${cdto.ccontent }</li>
+								<li class="btn">
+									<a class="rebtn updateBtn">수정</a>
+									<a class="rebtn deleteBtn">삭제</a>
+								</li>
+							</ul>
+						</c:if>
+						<c:if test="${session_id != cdto.id }">
+						<ul>
+							<li class="name">${cdto.id} <span>[${cdto.cdate }]</span></li>
+							<c:if test="${cdto.cpw != null }">
+							<li class="txt">
+								<a class="passwordBtn"><span class="orange">※ 비밀글입니다.</span></a>
 							</li>
+							</c:if>
+							<c:if test="${cdto.cpw == null }">
+								<li class="txt">${cdto.ccontent }</li>
+							</c:if>
 						</ul>
+						</c:if>
 						</c:forEach>
 						
-						<!--  댓글 수정 
-						<ul>
+						<!--  비밀글 
+						<ul id=>
 							<li class="name">jjabcde <span>[2014-03-04&nbsp;&nbsp;15:01:59]</span></li>
 							<li class="txt"><textarea class="replyType"></textarea></li>
 							<li class="btn">
-								<a href="#" class="rebtn">완료</a>
-								<a href="#" class="rebtn">취소</a>
+								<a href="#" class="rebtn saveBtn">완료</a>
+								<a href="#" class="rebtn cancelBtn">취소</a>
 							</li>
 						</ul>
 						

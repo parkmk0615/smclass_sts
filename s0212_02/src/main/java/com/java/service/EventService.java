@@ -10,9 +10,13 @@ public interface EventService {
 	ArrayList<EventDto> event();
 
 	EventDto eview(int eno);
-
+	//가져오기
 	ArrayList<CboardDto> clist(int eno);
-
+	//저장
 	CboardDto cwrite(CboardDto cdto);
+	//수정
+	CboardDto cupdate(CboardDto cdto);
+
+	void cdelete(int cno);
 
 }
